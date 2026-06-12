@@ -56,6 +56,7 @@ Returns a 2-4 sentence string usable as a social media caption. Includes the ite
 
 **What happens if it fails or returns nothing:**
 If outfit string is empty or missing, returns an error message string like "Could not generate fit card because outfit suggestion was missing." Does not raise an exception.
+
 ---
 
 ### Additional Tools (if any)
@@ -76,6 +77,7 @@ Then call create_fit_card with session["outfit_suggestion"] and session["selecte
 The agent knows it is done after create_fit_card returns. It then returns the full session dictionary to be displayed to the user.
 
 The agent never loops back to previous tools. The only decision point is whether search_listings found any results.
+
 ---
 
 ## State Management
@@ -90,6 +92,7 @@ When suggest_outfit runs, it receives session["selected_item"] as its new_item p
 When create_fit_card runs, it receives session["outfit_suggestion"] as the outfit parameter and session["selected_item"] as the new_item parameter. It returns a string that gets stored as session["fit_card"].
 
 At the end, the session dictionary contains all the information needed to display results to the user. The user does not have to re-enter any data between tool calls.
+
 ---
 
 ## Error Handling
@@ -118,46 +121,48 @@ User gives query with description, size, max_price, and wardrobe
     │    size, max_price)            │
     └────────────────────────────────┘
                     │
-                    ├──────────────────────────────┐
-                    │ results = []                 │ results has items
-                    ▼                              ▼
-            ┌─────────────┐              ┌──────────────────────┐
-            │ session     │              │ session               │
-            │ ["error"]=  │              │ ["selected_item"] =   │
-            │ "No items"  │              │ results[0]            │
-            └─────────────┘              └──────────────────────┘
-                    │                              │
-                    ▼                              ▼
-              Return to                    ┌─────────────────────────┐
-                user                       │ suggest_outfit(         │
-                (STOP)                     │   selected_item,        │
-                                           │   wardrobe)             │
-                                           └─────────────────────────┘
-                                                    │
-                                                    ▼
-                                           ┌──────────────────────┐
-                                           │ session              │
-                                           │ ["outfit_suggestion"]│
-                                           │ = result string      │
-                                           └──────────────────────┘
-                                                    │
-                                                    ▼
-                                           ┌─────────────────────────┐
-                                           │ create_fit_card(        │
-                                           │   outfit_suggestion,    │
-                                           │   selected_item)        │
-                                           └─────────────────────────┘
-                                                    │
-                                                    ▼
-                                           ┌──────────────────────┐
-                                           │ session              │
-                                           │ ["fit_card"] =       │
-                                           │ result string        │
-                                           └──────────────────────┘
-                                                    │
-                                                    ▼
-                                           Return session to user
-
+        ┌───────────┴───────────┐
+        │                       │
+        ▼                       ▼
+results = []              results has items
+        │                       │
+        ▼                       ▼
+┌─────────────┐          ┌──────────────────────┐
+│ session     │          │ session              │
+│ ["error"] = │          │ ["selected_item"] =  │
+│ "No items"  │          │ results[0]           │
+└─────────────┘          └──────────────────────┘
+        │                       │
+        ▼                       ▼
+  Return to              ┌─────────────────────────┐
+    user                 │ suggest_outfit(         │
+    (STOP)               │   selected_item,        │
+                         │   wardrobe)             │
+                         └─────────────────────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ session              │
+                         │ ["outfit_suggestion"]│
+                         │ = result string      │
+                         └──────────────────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────────┐
+                         │ create_fit_card(        │
+                         │   outfit_suggestion,    │
+                         │   selected_item)        │
+                         └─────────────────────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ session              │
+                         │ ["fit_card"] =       │
+                         │ result string        │
+                         └──────────────────────┘
+                                    │
+                                    ▼
+                         Return session to user
 ---
 
 ## AI Tool Plan
