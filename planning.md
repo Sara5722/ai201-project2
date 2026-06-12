@@ -136,14 +136,14 @@ Write out what a full user interaction looks like from start to finish — tool 
 
 **Example user query:** "I'm looking for a vintage graphic tee under $30. I mostly wear baggy jeans and chunky sneakers. What's out there and how would I style it?"
 
-**Step 1:**
-<!-- What does the agent do first? Which tool is called? With what input? -->
+**Step 1: Search**
+FitFindr calls search_listings("vintage graphic tee", size="M", max_price=30.0). Returns top 3 matching listings and picks the most relevant one. If no results found, tells user to try different filters and stops
 
-**Step 2:**
-<!-- What happens next? What was returned from step 1? What tool is called now? -->
+**Step 2: Suggest Outfit **
+Using the item returned from search, FitFindr calls suggest_outfit(new_item=<band tee>, wardrobe=<user's wardrobe>). Returns styling advice that incorporates the user's existing clothes. Works even with empty wardrobe by suggesting general pairings.
 
-**Step 3:**
-<!-- Continue until the full interaction is complete -->
+**Step 3: Create Fir Card**
+With the outfit suggestion, FitFindr calls create_fit_card(outfit=<suggestion>, new_item=<band tee>). Generates a short, shareable Instagram-style caption. On rare failure, returns a simple fallback template.
 
 **Final output to user:**
-<!-- What does the user actually see at the end? -->
+Shows the found item, styling advice, and fit card all together in one response.
