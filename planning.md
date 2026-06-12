@@ -108,61 +108,28 @@ For each tool, describe the specific failure mode you're handling and what the a
 ---
 
 ## Architecture
-User gives query with description, size, max_price, and wardrobe
-                    │
-                    ▼
-            ┌─────────────┐
-            │ run_agent() │
-            └─────────────┘
-                    │
-                    ▼
-    ┌────────────────────────────────┐
-    │ search_listings(description,   │
-    │    size, max_price)            │
-    └────────────────────────────────┘
-                    │
-        ┌───────────┴───────────┐
-        │                       │
-        ▼                       ▼
-results = []              results has items
-        │                       │
-        ▼                       ▼
-┌─────────────┐          ┌──────────────────────┐
-│ session     │          │ session              │
-│ ["error"] = │          │ ["selected_item"] =  │
-│ "No items"  │          │ results[0]           │
-└─────────────┘          └──────────────────────┘
-        │                       │
-        ▼                       ▼
-  Return to              ┌─────────────────────────┐
-    user                 │ suggest_outfit(         │
-    (STOP)               │   selected_item,        │
-                         │   wardrobe)             │
-                         └─────────────────────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │ session              │
-                         │ ["outfit_suggestion"]│
-                         │ = result string      │
-                         └──────────────────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────────┐
-                         │ create_fit_card(        │
-                         │   outfit_suggestion,    │
-                         │   selected_item)        │
-                         └─────────────────────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │ session              │
-                         │ ["fit_card"] =       │
-                         │ result string        │
-                         └──────────────────────┘
-                                    │
-                                    ▼
-                         Return session to user
+flowchart TD
+    User[User provides query<br/>description, size, max_price, wardrobe] --> Agent[run_agent]
+    
+    Agent --> Search[search_listings<br/>description, size, max_price]
+    
+    Search --> Check{Results?}
+    
+    Check -->|empty list| Error[Set session error message<br/>Return to user STOP]
+    
+    Check -->|has items| Store[Store selected_item = results[0]]
+    
+    Store --> Suggest[suggest_outfit<br/>selected_item, wardrobe]
+    
+    Suggest --> StoreOutfit[Store outfit_suggestion]
+    
+    StoreOutfit --> Card[create_fit_card<br/>outfit_suggestion, selected_item]
+    
+    Card --> StoreCard[Store fit_card]
+    
+    StoreCard --> Return[Return session to user]
+    
+    Error --> End
 ---
 
 ## AI Tool Plan
