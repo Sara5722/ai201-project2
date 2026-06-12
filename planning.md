@@ -108,28 +108,45 @@ For each tool, describe the specific failure mode you're handling and what the a
 ---
 
 ## Architecture
-flowchart TD
-    User[User provides query<br/>description, size, max_price, wardrobe] --> Agent[run_agent]
-    
-    Agent --> Search[search_listings<br/>description, size, max_price]
-    
-    Search --> Check{Results?}
-    
-    Check -->|empty list| Error[Set session error message<br/>Return to user STOP]
-    
-    Check -->|has items| Store[Store selected_item = results[0]]
-    
-    Store --> Suggest[suggest_outfit<br/>selected_item, wardrobe]
-    
-    Suggest --> StoreOutfit[Store outfit_suggestion]
-    
-    StoreOutfit --> Card[create_fit_card<br/>outfit_suggestion, selected_item]
-    
-    Card --> StoreCard[Store fit_card]
-    
-    StoreCard --> Return[Return session to user]
-    
-    Error --> End
+User gives query (description, size, max_price, wardrobe)
+
+        |
+        v
+
+run_agent()
+
+        |
+        v
+
+search_listings(description, size, max_price)
+
+        |
+        v
+
+    CHECK RESULTS
+        |
+        +-------[no results]------> session["error"] = "No items found"
+        |                               |
+        |                               v
+        |                         Return to user (STOP)
+        |
+        +-------[has results]----> session["selected_item"] = results[0]
+                                        |
+                                        v
+                                suggest_outfit(selected_item, wardrobe)
+                                        |
+                                        v
+                                session["outfit_suggestion"] = result string
+                                        |
+                                        v
+                                create_fit_card(outfit_suggestion, selected_item)
+                                        |
+                                        v
+                                session["fit_card"] = result string
+                                        |
+                                        v
+                                Return session to user
+
 ---
 
 ## AI Tool Plan
